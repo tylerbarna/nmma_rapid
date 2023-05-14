@@ -13,7 +13,7 @@ import pandas as pd
 from astropy.time import Time
  
 
-from utils.tools import parse_csv, current_time, get_filters
+from tools import parse_csv, current_time, get_filters
 
 
 def make_object_directory(object):

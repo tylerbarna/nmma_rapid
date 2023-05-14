@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
 from astropy.time import Time
  
-from utils.fileChecks import scan_objects, check_fit_completion
+from utils.files import scan_objects, check_fit_completion
 from utils.tools import current_time, generate_job
 from utils.fitting import make_object_directory, trigger_time, generate_job, submit_job
 
@@ -54,5 +54,7 @@ while True:
         if completion_state == True: break
         
 
-
+## schematically from here:
+## 1. Do plotting of results (plot best fit of each of the models along with the data onto one plot, save to root directory of object fit)
+## 2. Have an automated push to github of results (maybe try to automate the commit message to include the object names that have been fit in the commit)
         
