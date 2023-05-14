@@ -1,0 +1,108 @@
+{
+    "models":{
+        "nugent-hyper":{
+            "name":"nugent-hyper",
+            "alias":"Supernova",
+            "prior":"/home/cough052/barna314/nmma_rapid/priors/nugent-hyper.prior",
+
+            "job":{
+                "path":"/home/cough052/barna314/nmma_rapid/SNjob.txt",
+                "time":"07:59:59",
+                "nodes":1,
+                "ntasks":1,
+                "cpus-per-task":2,
+                "mem":"8gb"
+            },
+            
+            "tmin":0.00,
+            "tmax":7.00,
+            "dt":0.10,
+            "nlive":1024 
+
+        },
+
+        "TrPi2018":{
+            "name":"TrPi2018",
+            "alias":"GRB Afterglow",
+            "prior":"/home/cough052/barna314/nmma_rapid/priors/TrPi2018.prior",
+            "job":{
+                "time":"07:59:59",
+                "nodes":1,
+                "ntasks":1,
+                "cpus-per-task":4,
+                "mem":"8gb"
+            },
+
+            "tmin":0.01,
+            "tmax":7.01,
+            "dt":0.35,
+            "nlive":1024
+        },
+
+        "Piro2021":{
+            "name":"Piro2021",
+            "alias":"Shock Cooling",
+            "prior":"/home/cough052/barna314/nmma_rapid/priors/Piro2021.prior",
+            "job":{
+                "nodes":1,
+                "ntasks":1,
+                "cpus-per-task":4,
+                "mem":"8gb"
+            },
+
+            "tmin":0.00,
+            "tmax":7.00,
+            "dt":0.10,
+            "nlive":1024
+
+        },
+
+        "Bu2019lm":{
+            "name":"Bu2019lm",
+            "alias":"Kilonova",
+            "prior":"/home/cough052/barna314/nmma_rapid/priors/Bu2019lm.prior",
+            "job":{
+                "time":"07:59:59",
+                "nodes":1,
+                "ntasks":1,
+                "cpus-per-task":2,
+                "mem":"8gb"
+            },
+
+            "tmin":0.00,
+            "tmax":7.00,
+            "dt":0.10,
+            "nlive":1024
+        }
+        
+    },
+    "settings":{
+        "env":{
+            "path":"/home/cough052/barna314/anaconda3/bin/activate",
+            "name":"nmma"
+        },
+        "repo_directory":"/home/cough052/barna314/nmma_rapid/",
+        "candidate_directory": "/home/cough052/barna314/nmma_rapid/lightcurves/",
+        "fit_directory":"/home/cough052/barna314/nmma_rapid/fits/",
+        "svd_path":"/home/cough052/shared/NMMA/svdmodels/",
+        "t0":1,
+        "trigger_time_heuristic":false,
+        "detection-limit":{
+            "r":21.5,
+            "g":21.5,
+            "i":21.5
+        },
+        "fit_trigger_time":true,
+        "error_budget":1.0,
+        "svd_mag_ncoeff": 10,
+        "svd_lbol_ncoeff": 10,
+        "Ebv_max": 0.5724,
+        "grb_resolution": 7,
+        "jet_type": 0,
+        "joint_light_curve":false,
+        "sampler":"pymultinest", 
+        "seed": 42,
+        "timeout": 8
+        
+    }
+}
