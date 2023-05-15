@@ -1,12 +1,8 @@
 '''
 Contains all miscellaneous functions that are used for the project.
 '''
-import subprocess
-import sys
 import os
-import argparse
 import json
-import glob
 import time
 
 import numpy as np
@@ -14,6 +10,9 @@ import pandas as pd
 import bilby
 
 from astropy.time import Time
+
+from nmma.em.model import *
+
 
 def current_time():
     '''
@@ -89,4 +88,38 @@ def read_results_json(jsonPath):
     return results
     
     
+def get_lightcurve_model(model):
+    '''
+    retreive the lightcurve model from nmma using the model-specific dictionary in settings.json
+    
+    Args:
+        model (dict): dictionary of model, including job settings from settings.json (see fitting.generate_job for better idea of intended structure)
+    
+    Returns:
+        lightcurve_model (class): lightcurve model from nmma
+    '''
+    model_function_name = model['model']
+    model_function = eval(model_function_name)
+    return model_function
 
+
+def get_absolute_magnitude(distance, mag):
+    '''
+    converts apparent magnitude to absolute magnitude
+    
+    Args:
+        distance (float,dict,list,np.ndarray): distance to object in Mpc
+        mag (float): apparent magnitude of object
+        
+    Returns:
+        absolute_magnitude (float): absolute magnitude of object
+    '''
+    absolute_magnitude = lambda mag, distance: mag + 5 * np.log10(distance * 1e6 / 10.0)
+    if type(mag) == dict: ## in case of multiple filters
+        return {filter: absolute_magnitude(mag[filter], distance) for filter in mag.keys()}
+    elif type(mag) == list:
+        return [absolute_magnitude(mag, distance) for mag in mag]
+    elif type(mag) == np.ndarray:
+        return np.array([absolute_magnitude(mag, distance) for mag in mag])
+    else:
+        return mag + 5 * np.log10(distance * 1e6 /10.0)

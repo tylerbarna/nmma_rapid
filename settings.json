@@ -4,7 +4,7 @@
             "name":"nugent-hyper",
             "alias":"Supernova",
             "prior":"/home/cough052/barna314/nmma_rapid/priors/nugent-hyper.prior",
-
+            "model":"SupernovaLightCurveModel",
             "job":{
                 "path":"/home/cough052/barna314/nmma_rapid/SNjob.txt",
                 "time":"07:59:59",
@@ -17,7 +17,8 @@
             "tmin":0.00,
             "tmax":7.00,
             "dt":0.10,
-            "nlive":1024 
+            "nlive":1024,
+            "color":"C1" 
 
         },
 
@@ -25,6 +26,7 @@
             "name":"TrPi2018",
             "alias":"GRB Afterglow",
             "prior":"/home/cough052/barna314/nmma_rapid/priors/TrPi2018.prior",
+            "model":"GRBLightCurveModel",
             "job":{
                 "time":"07:59:59",
                 "nodes":1,
@@ -36,13 +38,15 @@
             "tmin":0.01,
             "tmax":7.01,
             "dt":0.35,
-            "nlive":1024
+            "nlive":1024,
+            "color":"C2"
         },
 
         "Piro2021":{
             "name":"Piro2021",
             "alias":"Shock Cooling",
             "prior":"/home/cough052/barna314/nmma_rapid/priors/Piro2021.prior",
+            "model":"ShockCoolingLightCurveModel",
             "job":{
                 "nodes":1,
                 "ntasks":1,
@@ -53,7 +57,8 @@
             "tmin":0.00,
             "tmax":7.00,
             "dt":0.10,
-            "nlive":1024
+            "nlive":1024,
+            "color":"C3"
 
         },
 
@@ -61,6 +66,7 @@
             "name":"Bu2019lm",
             "alias":"Kilonova",
             "prior":"/home/cough052/barna314/nmma_rapid/priors/Bu2019lm.prior",
+            "model":"SVDLightCurveModel",
             "job":{
                 "time":"07:59:59",
                 "nodes":1,
@@ -72,7 +78,8 @@
             "tmin":0.00,
             "tmax":7.00,
             "dt":0.10,
-            "nlive":1024
+            "nlive":1024,
+            "color":"C4"
         }
         
     },
@@ -81,10 +88,10 @@
             "path":"/home/cough052/barna314/anaconda3/bin/activate",
             "name":"nmma"
         },
-        "repo_directory":"/home/cough052/barna314/nmma_rapid/",
-        "candidate_directory": "/home/cough052/barna314/nmma_rapid/lightcurves/",
-        "fit_directory":"/home/cough052/barna314/nmma_rapid/fits/",
-        "svd_path":"/home/cough052/shared/NMMA/svdmodels/",
+        "repo_directory":"/home/cough052/barna314/nmma_rapid",
+        "candidate_directory": "/home/cough052/barna314/nmma_rapid/objects",
+        "fit_directory":"/home/cough052/barna314/nmma_rapid/fits",
+        "svd_path":"/home/cough052/shared/NMMA/svdmodels",
         "t0":1,
         "trigger_time_heuristic":false,
         "detection-limit":{
@@ -102,7 +109,8 @@
         "joint_light_curve":false,
         "sampler":"pymultinest", 
         "seed": 42,
-        "timeout": 8
+        "timeout": 8,
+        "remove_nondetections":false
         
     }
 }

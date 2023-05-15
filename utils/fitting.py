@@ -1,19 +1,14 @@
 '''
 Contains all functions used for fitting lightcurves.
 '''
-
 import subprocess
-import sys
 import os
-import argparse
-import json
 
 import numpy as np
 import pandas as pd
 from astropy.time import Time
  
-
-from tools import parse_csv, current_time, get_filters
+from utils.tools import current_time, get_filters
 
 
 def make_object_directory(object):
