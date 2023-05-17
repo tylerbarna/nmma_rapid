@@ -63,7 +63,7 @@ def plot_lightcurves(data_file, settings_file, sample_times=np.linspace(0.01,7,1
         - add an option to calculate and plot residuals (may need to be a seperate function since the models are not sampled at the same times as the data)
     '''
     settings_dict, models_dicts = get_settings(settings_file)
-    object_name = data_file.split("/")[-1].split(".")[0]
+    object_name = os.path.basename(data_file).split('.')[0]
     lightcurve_df = combine_dataframes(data_file, settings_file, sample_times=sample_times)
     observed_filters = lightcurve_df[(lightcurve_df['mag_err'] != np.inf) & (lightcurve_df['model'] == 'data')]['filter'].unique() ## finds the filters in the real data that have observations, used to filter the models
     if len(observed_filters) == 0:

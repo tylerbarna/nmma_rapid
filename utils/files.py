@@ -15,6 +15,24 @@ from astropy.time import Time
 from utils.tools import current_time
 from utils.plotting import combine_dataframes
 
+def get_settings(settings_path='./settings.json'):
+    '''
+    Retreive the settings from the settings file and split into models and settings
+    
+    Args:
+        settings_path (str): path to settings file (default: './settings.json')
+        
+    Returns:
+        models (dict): dictionary of models and their settings
+        settings (dict): dictionary of general settings
+    '''
+    with open(settings_path, 'r') as f:
+        settings_json = json.load(f)
+    
+    models = settings_json['models']
+    settings = settings_json['settings']
+    
+    return models, settings
 
 def scan_objects(lc_path, fits_path):
     '''
@@ -31,7 +49,9 @@ def scan_objects(lc_path, fits_path):
     To Do: May be better to rework so it uses gitpython to check for newly added objects rather than checking for folders
     '''
     objects = os.listdir(lc_path) ## list of objects in lightcurve directory
-    object_names = [object.split('.')[0] for object in objects] ## list of object names in lightcurve directory
+    object_names = np.array([object.split('.')[0] for object in objects]) ## list of object names in lightcurve directory
+    object_names = np.unique(object_names) ## unique object names in lightcurve directory (accounts for file conversion)
+    
     
     fits_objects = os.listdir(fits_path) ## list of objects in fits directory (will be folders)
     
@@ -45,6 +65,61 @@ def scan_objects(lc_path, fits_path):
         print('[{}] No new objects found'.format(current_time()))
         return False
     
+def check_correct_file_format(lc_path):
+    '''
+    checks that the file is in the correct format. Anticipated format is a .dat file with the following columns: [t, filter, mag, mag_unc] where t is in isot format and filters are part of the standard filter set in nmma (u,g,r,i,z,y,J,H,K)
+    
+    Args:
+        lc_path (str): path to lightcurve file
+    
+    Returns:
+        True if file is in correct format, False otherwise
+    
+    To-Do:
+        - make sure it actually works
+        - implement into scanner
+    '''
+    correct_columns = ['t', 'filter', 'mag', 'mag_unc']
+    correct_filters = ['u','g','r','i','z','y','J','H','K']
+    
+    df = pd.read_csv(lc_path, sep=' ', header=None, names=correct_columns)
+    detected_filters = np.unique(df['filter'])
+    try: ## tries to convert t to isot format. If broken, not in correct format
+        Time(pd.to_datetime(df['t']), format='isot')
+    except:
+        return False
+    if df.shape[1] != len(correct_columns): ## check for correct number of columns
+        return False
+    elif any(filter not in correct_filters for filter in detected_filters): ## check for correct filters
+        return False
+    else: ## if all checks pass, return True
+        return True
+
+    
+def get_lightcurve_data(data_file, tmax=False,remove_nondetections=False):
+    '''
+    imports dat file for lightcurve as a pandas dataframe
+    
+    Args:
+        file (str): path to dat file
+        tmax (float): maximum time to include in lightcurve
+        remove_nondetections (bool): whether to remove nondetections from lightcurve
+    
+    Returns:
+        df (pandas dataframe): dataframe containing lightcurve data (columns: t, filter, mag, mag_unc, model, alias)
+    '''
+    df = pd.read_csv(data_file, sep=' ', header=None, names=['t', 'filter', 'mag', 'mag_unc'])
+    object_name = os.path.basename(data_file).split('.')[0]
+    
+    df['t'] = Time(pd.to_datetime(df['t'])).mjd ## convert to mjd
+    ## would it break the nmma fit to include a column with the original mjd values?
+    df['t'] = df['t'] - df['t'].min() ## set t=0 to first observation
+    df['model'] = 'data'
+    df['alias'] = object_name ## change this to be the object name
+    if tmax:
+        df = df[df['t'] < tmax]
+    df = df[df['mag_unc'] != np.inf] if remove_nondetections else df
+    return df
 
 def check_fit_completion(objects, models, settings, elapsed_time):
     '''
@@ -80,70 +155,7 @@ def check_fit_completion(objects, models, settings, elapsed_time):
     elif elapsed_time > timeout:
         print('[{}] Timeout reached'.format(current_time()))
         return True
-
-def get_settings(settings_path='./settings.json'):
-    '''
-    Retreive the settings from the settings file and split into models and settings
     
-    Args:
-        settings_path (str): path to settings file (default: './settings.json')
-        
-    Returns:
-        models (dict): dictionary of models and their settings
-        settings (dict): dictionary of general settings
-    '''
-    with open(settings_path, 'r') as f:
-        settings_json = json.load(f)
-    
-    models = settings_json['models']
-    settings = settings_json['settings']
-    
-    return models, settings
-
-def get_results_json_path(settings, object, model):
-    '''
-    retreive the path to the results.json file from a completed fit
-    
-    Args:
-        settings (dict): dictionary of settings from settings.json
-        object (str): name of object
-        model (dict): dictionary of model, including job settings from settings.json (see fitting.generate_job for better idea of intended structure)
-    
-    Returns:
-        results_json_path (str): path to results.json file
-    '''
-    results_json_path = os.path.join(settings['fit_directory'], object, model['model'], '*result.json')
-    results_json_path_search = glob.glob(results_json_path)
-    if results_json_path_search == 1:
-        return results_json_path_search[0]
-    elif results_json_path_search == 0:
-        print('[{}] No results.json file found for {} {}'.format(current_time(), object, model['model']))
-        return None
-    return results_json_path
-
-def get_lightcurve_data(data_file, tmax=False,remove_nondetections=False):
-    '''
-    imports dat file for lightcurve as a pandas dataframe
-    
-    Args:
-        file (str): path to dat file
-        tmax (float): maximum time to include in lightcurve
-        remove_nondetections (bool): whether to remove nondetections from lightcurve
-    
-    Returns:
-        df (pandas dataframe): dataframe containing lightcurve data (columns: t, filter, mag, mag_unc, model, alias)
-    '''
-    df = pd.read_csv(data_file, sep=' ', header=None, names=['t', 'filter', 'mag', 'mag_unc'])
-    
-    df['t'] = Time(pd.to_datetime(df['t'])).mjd ## convert to mjd
-    df['t'] = df['t'] - df['t'].min() ## set t=0 to first observation
-    df['model'] = 'data'
-    df['alias'] = 'data'
-    if tmax:
-        df = df[df['t'] < tmax]
-    df = df[df['mag_unc'] != np.inf] if remove_nondetections else df
-    return df
-
 def save_combined_dataframes(data_file, settings_file, sample_times=np.linspace(0.01, 7, 100)):
     '''
     takes the combined lightcurve dataframe and saves it to a csv file located in the lightcurve fit directory
@@ -167,3 +179,24 @@ def save_combined_dataframes(data_file, settings_file, sample_times=np.linspace(
     os.makedirs(os.path.dirname(output_file), exist_ok=True) ## just to be safe
     
     combined_df.to_csv(output_file, index=False)
+
+def get_results_json_path(settings, object, model):
+    '''
+    retreive the path to the results.json file from a completed fit
+    
+    Args:
+        settings (dict): dictionary of settings from settings.json
+        object (str): name of object
+        model (dict): dictionary of model, including job settings from settings.json (see fitting.generate_job for better idea of intended structure)
+    
+    Returns:
+        results_json_path (str): path to results.json file
+    '''
+    results_json_path = os.path.join(settings['fit_directory'], object, model['model'], '*result.json')
+    results_json_path_search = glob.glob(results_json_path)
+    if results_json_path_search == 1:
+        return results_json_path_search[0]
+    elif results_json_path_search == 0:
+        print('[{}] No results.json file found for {} {}'.format(current_time(), object, model['model']))
+        return None
+    return results_json_path

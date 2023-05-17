@@ -70,7 +70,7 @@ def generate_best_fit_lightcurve(json_path, model, sample_times=np.linspace(0.01
     best_parameters_dict, likelihood_dict = get_best_params(json_path)
     luminosity_distance = best_parameters_dict['luminosity_distance']
 
-    lightcurve_model = get_lightcurve_model(model)(sample_times) ## assumes the initialization of sample times is done twice in nmma (see related issue/pr in nmma)
+    lightcurve_model = get_lightcurve_model(model)(sample_times=sample_times, model=model['name']) ## assumes the initialization of sample times is done twice in nmma (see related issue/pr in nmma)
     
     _, apparent_magnitude = lightcurve_model.generate_lightcurve(sample_times, parameters=best_parameters_dict)
     absolute_magnitude = get_absolute_magnitude(luminosity_distance, apparent_magnitude)
