@@ -39,7 +39,7 @@ def scan_objects(lc_path, fits_path):
     scans directory for lightcurves and compares against the list of directories in the fits folder
     
     Args:
-        lc_path (str): path to lightcurve directory
+        lc_path (str): path to lightcurve ingest directory
         fits_path (str): path to fits directory
         
     Returns:
@@ -48,6 +48,7 @@ def scan_objects(lc_path, fits_path):
     
     To Do: May be better to rework so it uses gitpython to check for newly added objects rather than checking for folders
     '''
+    _, settings_dict = get_settings()
     objects = os.listdir(lc_path) ## list of objects in lightcurve directory
     object_names = np.array([object.split('.')[0] for object in objects]) ## list of object names in lightcurve directory
     object_names = np.unique(object_names) ## unique object names in lightcurve directory (accounts for file conversion)
@@ -55,12 +56,13 @@ def scan_objects(lc_path, fits_path):
     
     fits_objects = os.listdir(fits_path) ## list of objects in fits directory (will be folders)
     
-    new_objects_idx = [i for i, object in enumerate(object_names) if object not in fits_objects] ## indices of new objects
+    new_objects_idx = [i for i, object_name in enumerate(object_names) if object_name not in fits_objects] ## indices of new objects
     new_objects = [objects[i] for i in new_objects_idx] ## list of new objects (including the extension)
+    new_object_names = [object_names[i] for i in new_objects_idx] ## list of new object names (no extension)
     ## potential concern: could be a problem if there are multiple files for the same object (ie if the dat file has been made prior to this being run)
     if len(new_objects) > 0:
         print('[{}] New objects found: {}'.format(new_objects,current_time()))
-        return new_objects
+        return new_objects ## returns list of new objects with extension
     else:
         print('[{}] No new objects found'.format(current_time()))
         return False
@@ -73,7 +75,7 @@ def check_correct_file_format(lc_path):
         lc_path (str): path to lightcurve file
     
     Returns:
-        True if file is in correct format, False otherwise
+       dataframe if file is in correct format, False otherwise
     
     To-Do:
         - make sure it actually works
@@ -87,13 +89,13 @@ def check_correct_file_format(lc_path):
     try: ## tries to convert t to isot format. If broken, not in correct format
         Time(pd.to_datetime(df['t']), format='isot')
     except:
-        return False
+        raise Exception('[{}] Incorrect time format detected. Detected time format: {}. Accepted time format: isot'.format(current_time(),df['t'].dtype))
     if df.shape[1] != len(correct_columns): ## check for correct number of columns
-        return False
+        raise Exception('[{}] Incorrect number of columns detected. Detected columns: {}. Accepted columns: {}'.format(current_time(),df.columns, correct_columns))
     elif any(filter not in correct_filters for filter in detected_filters): ## check for correct filters
-        return False
+        raise Exception('[{}] Incorrect filters detected. Detected filters: {}. Accepted filters: {}'.format(current_time(),detected_filters, correct_filters))
     else: ## if all checks pass, return True
-        return True
+        return check_correct_file_format
 
     
 def get_lightcurve_data(data_file, tmax=False,remove_nondetections=False):

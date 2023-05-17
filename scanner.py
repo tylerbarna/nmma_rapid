@@ -6,6 +6,7 @@ import sys
 import time
  
 from utils.files import scan_objects, check_fit_completion, get_settings
+from utils.conversion import ingest_file
 from utils.tools import current_time
 from utils.fitting import generate_job, submit_job
 from utils.plotting import plot_lightcurves
@@ -14,19 +15,29 @@ from utils.git_tools import git_pull, git_push
 git_pull() ## pull from github to get latest version of code
 
 models_dicts, settings_dict = get_settings()
-    
+
+ingest_path = settings_dict['ingest_directory'] ## raw input directory
 lc_path = settings_dict['candidate_directory']
 fit_path = settings_dict['fit_directory']
 
 assert os.path.exists(lc_path), 'Candidate directory does not exist'
 
-new_objects = scan_objects(lc_path, fit_path) ## will return False if no new objects found
+new_object_names = scan_objects(ingest_path, fit_path) ## will return False if no new objects found, returns list of new objects (with extension but not path) if new objects found 
+new_object_ingest_paths = [os.path.join(ingest_path, new_object_name) for new_object_name in new_object_names]
 
-sys.exit() if new_objects == False else None ## exit if no new objects found
+sys.exit() if new_object_names == False else None ## exit if no new objects found
     
-num_fits = len(models_dicts.keys()) *  len(new_objects) ## total number of fits to be performed
+num_fits = len(models_dicts.keys()) *  len(new_object_names) ## total number of fits to be performed
 
-## to do: implement check for formatting of lightcurve files and have them be corrected if necessary (basic function is in utils/fileChecks.py as parse_csv)
+## to do: implement check for formatting of lightcurve files and have them be corrected if necessary (basic function is in utils/fileChecks.py as parse_csv, but expanded in conversion.py. need to implement in scanner.py and also add a setting in settings.json to have an input directory and a separate correctly formatted directory)
+
+try:
+    [ingest_file(new_object_path, settings_dict) for new_object_path in new_object_names] ## ingest new objects
+    new_objects = os.path.join(lc_path, new_object_names.split('.')[0]+'.dat') ## list of new converted objects in objects folder
+except:
+    print('[{}] Error converting files'.format(current_time()))
+    sys.exit() 
+
 
 anticipated_fit_count = 0 ## counter for number of fits that have been submitted
 for object in new_objects:
