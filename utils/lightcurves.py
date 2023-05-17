@@ -28,14 +28,14 @@ def get_best_params(json_path):
         likelihood_dict (dict): dictionary of likelihood values
     '''
     results = read_results_json(json_path)
-    posterior = results.posterior
+    posterior = results['posterior']
     posterior_keys = list(posterior.keys())
     
     best_log_likelihood_idx = np.argmin(np.abs(posterior['log_likelihood']))
     best_log_likelihood = posterior['log_likelihood'][best_log_likelihood_idx]
-    log_evidence = results.log_evidence
-    log_evidence_err = results.log_evidence_err
-    log_bayes_factor = results.log_bayes_factor
+    log_evidence = results['log_evidence']
+    log_evidence_err = results['log_evidence_err']
+    log_bayes_factor = results['log_bayes_factor']
     
     likelihood_dict = {'log_evidence':log_evidence, 'log_evidence_err':log_evidence_err, 'log_bayes_factor':log_bayes_factor, 'log_likelihood':best_log_likelihood}
     best_parameters_dict = dict(zip(posterior_keys, [posterior[key][best_log_likelihood_idx] for key in posterior_keys]))
