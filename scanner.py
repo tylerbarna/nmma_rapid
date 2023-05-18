@@ -14,9 +14,13 @@ from utils.git_tools import git_pull, git_push
 
 git_pull() ## pull from github to get latest version of code
 
-models_dicts, settings_dict = get_settings()
+
+settings_file = './settings.json'
+
+models_dicts, settings_dict = get_settings(settings_file)
 
 ingest_path = settings_dict['ingest_directory'] ## raw input directory
+
 lc_path = settings_dict['candidate_directory']
 fit_path = settings_dict['fit_directory']
 
@@ -56,7 +60,7 @@ while True:
         
 ## plot lightcurves
 for object in new_objects:
-    plot_lightcurves(object, models_dicts, settings_dict)
+    plot_lightcurves(object, settings_file)
 time.sleep(60) ## wait 1 minute to make sure all plots have been saved (may be unnecessary)
 
 commit_message = 'Added fits for objects: {}'.format(', '.join(new_objects))

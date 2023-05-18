@@ -131,6 +131,13 @@ def check_fit_completion(objects, models, settings, elapsed_time):
         objects (list): path to directories of objects
         models (dict): dictionary of models and their settings
         settings (dict): settings dictionary from settings.json
+        elapsed_time (float): time elapsed since start of fit in hours
+        
+    Returns:
+        boolean: True if all fits are complete or hit timeout, False otherwise
+    
+    To-Do:
+        - add an argument for the number of anticipated fits to account for any failures in job creation and/or submission (would be a try/except in the scanner.py file)
     '''
     timeout = settings['timeout'] ## timeout in hours (default of 8 hours)
     object_completed_jobs = {object:[] for object in objects} ## dictionary of objects and their completed jobs

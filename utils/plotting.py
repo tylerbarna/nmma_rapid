@@ -24,7 +24,7 @@ def combine_dataframes(data_file, settings_file, sample_times=np.linspace(0.01, 
     
     Args:
         data_file (str): path to dat file containing lightcurve data
-        settings_file (dict): dictionary of settings for nmma job (see fitting.generate_job for better idea of intended structure)
+        settings_file (str): path to settings file
         model (dict): dictionary of model, including job settings from settings.json (see fitting.generate_job for better idea of intended structure)
         sample_times (np.array): array of times to sample the lightcurve at (default is 100 samples from 0.01 to 7 days)
         
@@ -53,7 +53,7 @@ def plot_lightcurves(data_file, settings_file, sample_times=np.linspace(0.01,7,1
     
     Args:
         data_file (str): path to dat file containing lightcurve data
-        settings_file (dict): dictionary of settings for nmma job (see fitting.generate_job for better idea of intended structure)
+        settings_file (str): path to settings file
         sample_times (np.array): array of times to sample the lightcurve at (default is 100 samples from 0.01 to 7 days)
         
     Returns:

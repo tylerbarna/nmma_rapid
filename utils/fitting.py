@@ -53,7 +53,7 @@ def generate_job(object, model, settings):
     
     Args:
         object (str): path to object lightcurve
-        model (dict): dictionary of model, including job settings from settings.json
+        model (dict): dictionary of model, including job settings from settings.json (the value corresponding to the model key from the models dictionary in settings.json)
         settings (dict): dictionary of settings from settings.json
         
     Returns:
