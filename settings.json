@@ -89,6 +89,7 @@
             "name":"nmma"
         },
         "repo_directory":"/home/cough052/barna314/nmma_rapid",
+        "ingest_directory":"/home/cough052/barna314/nmma_rapid/ingest",
         "candidate_directory": "/home/cough052/barna314/nmma_rapid/objects",
         "fit_directory":"/home/cough052/barna314/nmma_rapid/fits",
         "svd_path":"/home/cough052/shared/NMMA/svdmodels",
